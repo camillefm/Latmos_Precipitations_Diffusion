@@ -1,0 +1,91 @@
+# Configuration file for model training
+num_experiment: 3
+experiment_name : "_more_channels"
+eval_name: "_best_rmse*(1-CSI)"
+
+#Directories
+data_directory : "/net/nfs/ssd3/cfrancoismartin/Projects/datasets/third_dataset/dataset"
+split_directory:
+  train_split : "/net/nfs/ssd3/cfrancoismartin/Projects/datasets/third_dataset/csv/train_split.csv"
+  val_split :  "/net/nfs/ssd3/cfrancoismartin/Projects/datasets/third_dataset/csv/val_split.csv"
+  test_split : "/net/nfs/ssd3/cfrancoismartin/Projects/datasets/third_dataset/csv/test_split.csv"
+
+checkpoint_directory : "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/experiments/checkpoints/cp_e3"
+result_directory : "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/experiments/results/e3/"
+norm_csv_directory : "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/core/src/Dataset/csv/"
+
+#Data
+list_channels: ['IR_087','IR_108','IR_120','WV_062','WV_073','IR_134','IR_097']
+
+# Data transformations
+transforms:
+  #tb
+  normalize_tb: "mean_std" #between 'min_max' and 'mean_std' for tb
+  normalize_tb_nb_of_sigmas: 3 #number of sigmas for the normalization
+
+  rain_log_normalization: False #normalize the rain by log(1+x)
+  normalize_rain: "mean_std" #normalize the rain by mean_std
+  normalize_rain_nb_of_sigmas: 1 #number of sigmas for the normalization
+  normalize_rain_exclude_zeros: True #exclude the pixels with rain value 0 for normalization
+
+  random_crop: True # crop to image size
+
+  train:
+    shuffle: True
+  val:
+    shuffle: True 
+  test:
+    shuffle: False # Do not shuffle test data
+
+# Model parameters
+model:
+  type: "Unet"   # Type of model to use
+  n_channels: 1  # Number of input channels
+  dim_mults: [1, 2, 4]
+  image_size: 128 # Size of the input images
+  init_dim: 64 #channels of the first layer then xdim_mults on every layer
+  out_dim: 1
+  resnet_block_groups: 2
+
+
+# Training parameters
+training:
+  num_epochs:  2000 # Number of training epochs
+  batch_size: 16 # Batch size for training
+  learning_rate: 0.0001 # Learning rate for the optimizer
+  num_workers: 5
+  pin_memory : True
+  resume_from_checkpoint: True # Whether to resume training from a checkpoint
+  checkpoint_name: "regular-epoch=409.ckpt" # Name of the checkpoint file to resume from or to eval from
+
+
+# Loss function
+loss:
+  type: "l2"  # Type of loss to use '# 'huber' or 'l2' or 'l1'
+
+rain_value_threshold: 0.1 # >=
+
+
+# Optimization and scheduling 
+scheduler:
+  type: "step"
+  step_size: 250
+  gamma: 0.5
+
+
+
+diffusion:
+  timesteps: 500 # Number of diffusion steps
+  cond_multiplier : 1 # multiplier for the conditionning
+  scheduler : "cosine" 
+  clip_betas_max : 0.8
+  
+  
+
+metrics :
+  compute_rate : 10 #compute metrics every n epochs
+  nb_elements_for_metrics : 200
+
+eval :
+  to_wandb : False
+  as_png : True
