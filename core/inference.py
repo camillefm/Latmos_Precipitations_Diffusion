@@ -1,22 +1,15 @@
 import torch
 import os
-import pytorch_lightning as pl
 from PIL import Image
 import numpy as np
 import pandas as pd
 import ast 
-from Unet.unet import Unet
-from Visualization.plot import plot_tensors
-from Sampling.sample import sample
-from Dataset.transforms import SharedRandomCrop3D_XYRQ
 
+from src.Unet.unet import Unet
+from src.Visualization.plot import plot_tensors
+from src.Sampling.sample import sample
+from src.Dataset.transforms import SharedRandomCrop3D_XYRQ
 
-import os
-import torch
-import numpy as np
-import pandas as pd
-import ast
-from PIL import Image
 
 def load_model(config, device):
     checkpoint_name = config['training']['checkpoint_name']

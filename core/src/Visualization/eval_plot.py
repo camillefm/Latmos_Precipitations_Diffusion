@@ -1,4 +1,4 @@
-from Visualization.plot import plot_tensors, plot_histogram, plot_heatmap
+from src.Visualization.plot import plot_tensors, plot_histogram, plot_heatmap
 import wandb
 import torch
 from PIL import Image
@@ -35,19 +35,37 @@ class EvalPlot():
             img.save(as_png)
             print(f"Image saved to {as_png}")
        
-        
+            
     def from_list_tuple_to_tensors(self, list_tuple):
         """
         Convert a list of tuples to tensors.
         Each tuple contains (tb, r, sampled_image, rq).
+        Filters out None, empty, or scalar tensors before stacking.
         """
         tb_list, r_list, sampled_images_list, rq_list = zip(*list_tuple)
-        tb_tensor = torch.stack(tb_list)
-        r_tensor = torch.stack(r_list)
-        sampled_images_tensor = torch.stack(sampled_images_list)
-        rq_tensor = torch.stack(rq_list)
+
+        def _filter_and_stack(tensor_list, name):
+            # On ne garde que les tenseurs valides
+            filtered = [
+                t for t in tensor_list
+                if isinstance(t, torch.Tensor) and t.numel() > 0 and t.dim() > 1
+            ]
+            if len(filtered) == 0:
+                raise ValueError(f"No valid tensors found in {name}_list. Check data generation.")
+            try:
+                return torch.stack(filtered)
+            except RuntimeError as e:
+                shapes = [tuple(t.shape) for t in filtered]
+                raise RuntimeError(f"Cannot stack tensors in {name}_list, got shapes {shapes}") from e
+
+        tb_tensor = _filter_and_stack(tb_list, "tb")
+        r_tensor = _filter_and_stack(r_list, "r")
+        sampled_images_tensor = _filter_and_stack(sampled_images_list, "sampled_images")
+        rq_tensor = _filter_and_stack(rq_list, "rq")
 
         return tb_tensor, r_tensor, sampled_images_tensor, rq_tensor
+
+
     
     def log_metrics(self, metrics_dict,name="Eval metrics", to_wandb=True, as_png=None):
         if to_wandb:

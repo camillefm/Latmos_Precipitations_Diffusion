@@ -8,21 +8,21 @@ from torch import optim, nn
 import pytorch_lightning as pl
 from torch.optim.lr_scheduler import StepLR
 
-from Unet.Unet_backbone.attention import Attention, LinearAttention,Residual, PreNorm
-from Unet.Unet_backbone.block import ResnetBlock
-from Unet.Unet_backbone.time_embedding import SinusoidalPositionEmbeddings
-from Unet.Unet_backbone.sample import Upsample, Downsample, default
+from src.Unet.Unet_backbone.attention import Attention, LinearAttention,Residual, PreNorm
+from src.Unet.Unet_backbone.block import ResnetBlock
+from src.Unet.Unet_backbone.time_embedding import SinusoidalPositionEmbeddings
+from src.Unet.Unet_backbone.sample import Upsample, Downsample, default
 
-from Sampling.diffusion_constants import DiffusionConstants
-from Sampling.sample import q_sample
+from src.Sampling.diffusion_constants import DiffusionConstants
+from src.Sampling.sample import q_sample
 
-from Unet.loss import loss_function, TimestepsLoss
+from src.Unet.loss import loss_function, TimestepsLoss
 
-from Metrics.trainer_metrics import TrainerMetrics
-from Metrics.eval_metrics import EvalMetrics
+from src.Metrics.trainer_metrics import TrainerMetrics
+from src.Metrics.eval_metrics import EvalMetrics
 
-from Visualization.trainer_plot import TrainerPlot
-from Visualization.eval_plot import EvalPlot
+from src.Visualization.trainer_plot import TrainerPlot
+from src.Visualization.eval_plot import EvalPlot
 
 class Unet(pl.LightningModule):
     def __init__(self,config, logger= None):
@@ -38,10 +38,10 @@ class Unet(pl.LightningModule):
 
         self.timesteps_loss = TimestepsLoss(10, timesteps=self.timesteps, loss_type=self.loss_type)
         assert logger is None or config['eval']['to_wandb'], "wandb requested but no logger detected"
-        if logger is not None:
+        
             # Initialize trainer plotS
-            self.trainer_plot = TrainerPlot(wandb_logger=logger, rain_valid_threshold=self.valid_data_threshold, tb_normalised_nb_sigmas=config['transforms']['normalize_tb_nb_of_sigmas'])
-            self.eval_plot = EvalPlot(wandb_logger=logger, rain_valid_threshold=self.valid_data_threshold, tb_normalised_nb_sigmas=config['transforms']['normalize_tb_nb_of_sigmas'])
+        self.trainer_plot = TrainerPlot(wandb_logger=logger, rain_valid_threshold=self.valid_data_threshold, tb_normalised_nb_sigmas=config['transforms']['normalize_tb_nb_of_sigmas'])
+        self.eval_plot = EvalPlot(wandb_logger=logger, rain_valid_threshold=self.valid_data_threshold, tb_normalised_nb_sigmas=config['transforms']['normalize_tb_nb_of_sigmas'])
 
     
     def load_config(self, config):

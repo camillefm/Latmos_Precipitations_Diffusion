@@ -6,7 +6,6 @@ import io
 from PIL import Image
 import seaborn as sns # type: ignore
 import pandas as pd
-from matplotlib.ticker import LogLocator, ScalarFormatter
 
 
 def standardize_tensor_shape(tensor, expect_4d=False):

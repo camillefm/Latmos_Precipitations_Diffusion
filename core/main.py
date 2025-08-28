@@ -3,9 +3,9 @@ import torch
 import yaml
 import argparse
 
-from Training.training import train_ddpm_model
-from Evaluation.eval import eval_ddpm_model
-from Inference.inference import inference_ddpm_model
+from training import train_ddpm_model
+from eval import eval_ddpm_model
+from inference import inference_ddpm_model
 import time
 
 

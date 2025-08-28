@@ -1,15 +1,12 @@
 import torch
-import yaml
 import wandb
-from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import ModelCheckpoint
-from pytorch_lightning.loggers import WandbLogger
-from Unet.unet import Unet
-from Dataset.dataset import build_dataloaders
+from pytorch_lightning.loggers import WandbLogger   
+
+from src.Unet.unet import Unet
+from src.Dataset.dataset import build_dataloaders
 
 import numpy as np
 import pytorch_lightning as pl
-from tabulate import tabulate
 from torch.utils.data import Subset
 import os
 
@@ -45,15 +42,14 @@ def eval_ddpm_model(config, debug_run: bool = False, checkpoint_name: str = None
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)
 
-     # Initialize Weights & Biases logging
-    wandb.finish()  # Finish any previous runs
-    wandb.login(key="380d7cb6473f438641f73f0650e92cdbf8b343f8")
-    wandb.init(project="RainDiffusion", name=name, config=config)
-    logger = WandbLogger(log_model=True)
-
-    # Create model (LightningModule)
-    #unet = Unet(config, mean_r=mean_r, std_r=std_r)
-
+    if config['eval']['to_wandb']:
+        # Initialize Weights & Biases logging
+        wandb.finish()  # Finish any previous runs
+        wandb.login(key="380d7cb6473f438641f73f0650e92cdbf8b343f8")
+        wandb.init(project="RainDiffusion", name=name, config=config)
+        logger = WandbLogger(log_model=True)
+    else: 
+        logger = None
     # Create Trainer
     trainer = pl.Trainer(
         logger=logger,

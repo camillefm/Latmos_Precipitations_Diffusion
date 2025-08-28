@@ -1,6 +1,6 @@
-from Metrics.metrics_function import distance_metrics, anormality_metrics, replace_image
-from Metrics.metrics_function import range_masks, update_dictionary, return_binary_rain, pixel_metrics, normalize_dictionary, normalize_dict_by_row
-from Sampling.sample import sample
+from src.Metrics.metrics_function import distance_metrics, anormality_metrics, replace_image
+from src.Metrics.metrics_function import range_masks, update_dictionary, return_binary_rain, pixel_metrics, normalize_dictionary, normalize_dict_by_row
+from src.Sampling.sample import sample
 
 import torch
 

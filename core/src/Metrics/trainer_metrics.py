@@ -1,5 +1,5 @@
-from Metrics.metrics_function import distance_metrics, anormality_metrics, update_dictionary
-from Sampling.sample import sample
+from src.Metrics.metrics_function import distance_metrics, anormality_metrics, update_dictionary
+from src.Sampling.sample import sample
 import torch
 
 class TrainerMetrics:

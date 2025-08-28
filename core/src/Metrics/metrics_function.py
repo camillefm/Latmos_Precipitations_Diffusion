@@ -1,4 +1,3 @@
-from Sampling.sample import sample 
 import torch
 import numpy as np
 from scipy.stats import skew, kurtosis

@@ -3,8 +3,9 @@ import os
 import wandb
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
-from Unet.unet import Unet
-from Dataset.dataset import build_dataloaders
+
+from src.Unet.unet import Unet
+from src.Dataset.dataset import build_dataloaders
 
 import pytorch_lightning as pl
 
@@ -96,12 +97,16 @@ def train_ddpm_model(config, debug_run: bool = False):
 
     if debug_run:
         name = "debug " + name
-    # Initialize Weights & Biases logging
-    wandb.login(key="380d7cb6473f438641f73f0650e92cdbf8b343f8")
-    wandb.init(project="RainDiffusion", name=name, config=config)
-    
 
-    logger = WandbLogger(log_model=True)
+    if config['eval']['to_wandb']:
+        # Initialize Weights & Biases logging
+        wandb.login(key="380d7cb6473f438641f73f0650e92cdbf8b343f8")
+        wandb.init(project="RainDiffusion", name=name, config=config)
+        
+
+        logger = WandbLogger(log_model=True)
+    else :
+        logger = None
 
     # Set up the PyTorch Lightning trainer
     trainer = pl.Trainer(
@@ -131,4 +136,6 @@ def train_ddpm_model(config, debug_run: bool = False):
     else:
         print("Training from scratch", flush=True)
         trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=val_loader)
-    wandb.finish()  # Finish the Wandb run
+    
+    if config['eval']['to_wandb']:
+        wandb.finish()  # Finish the Wandb run

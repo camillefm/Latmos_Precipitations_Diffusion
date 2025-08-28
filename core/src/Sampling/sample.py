@@ -1,6 +1,3 @@
-from Sampling.diffusion_constants import DiffusionConstants
-
-
 
 import torch
 

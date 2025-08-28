@@ -1,4 +1,4 @@
-from Visualization.plot import plot_tensors
+from src.Visualization.plot import plot_tensors
 import wandb
 
 class TrainerPlot():
