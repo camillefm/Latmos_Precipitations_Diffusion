@@ -8,19 +8,18 @@ from matplotlib.colors import LogNorm
 import netCDF4
 import pandas as pd
 import torch
-from scipy.stats import gaussian_kde
 from PIL import Image
 
-projects_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-rain_diffusion_dir = os.path.join(projects_dir, "RainDiffusion")
+# projects_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# rain_diffusion_dir = os.path.join(projects_dir, "RainDiffusion")
 
-if projects_dir not in sys.path:
-    sys.path.insert(0, projects_dir)
+# if projects_dir not in sys.path:
+#     sys.path.insert(0, projects_dir)
 
-if rain_diffusion_dir not in sys.path:
-    sys.path.insert(0, rain_diffusion_dir)
+# if rain_diffusion_dir not in sys.path:
+#     sys.path.insert(0, rain_diffusion_dir)
 
-from RainDiffusion.Visualization.plot import plot_heatmap, plot_histogram
+from src.Visualization.plot import plot_heatmap, plot_histogram
 
 
 data_dir = "/net/nfs/ssd3/cfrancoismartin/Projects/ClimMatthieu/data"

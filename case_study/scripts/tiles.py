@@ -1,5 +1,4 @@
-import numpy as np
-
+import torch
 def split_tensor_to_grid(tensor, tile_height, tile_width):
     """
     Splits a 3D tensor (C, H, W) into smaller tiles.
@@ -27,8 +26,6 @@ def split_tensor_to_grid(tensor, tile_height, tile_width):
 
     return tiles, (num_rows, num_cols)
 
-
-import torch
 
 def merge_tiles_to_tensor(tiles, grid_shape, tile_height, tile_width):
     num_rows, num_cols = grid_shape

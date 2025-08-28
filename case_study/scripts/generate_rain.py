@@ -2,20 +2,21 @@
 import sys
 import os
 
-projects_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-rain_diffusion_dir = os.path.join(projects_dir, "RainDiffusion")
+# Path to project root
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+core_dir = os.path.join(project_root, "core")
+src_dir = os.path.join(core_dir, "src")
 
-if projects_dir not in sys.path:
-    sys.path.insert(0, projects_dir)
+# Ensure paths are in sys.path
+for p in [project_root, core_dir, src_dir]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
+        
+from core.inference import load_image, load_model, inference, save_plot
+from case_study.scripts.tiles import split_tensor_to_grid,merge_tiles_to_tensor
 
-if rain_diffusion_dir not in sys.path:
-    sys.path.insert(0, rain_diffusion_dir)
+from case_study.scripts.Matthieu.unet_Matthieu import UnetMatthieu
 
-from RainDiffusion.Inference.inference import load_image, load_model, inference, save_plot
-from tiles import split_tensor_to_grid,merge_tiles_to_tensor
-
-from Matthieu.unet_Matthieu import UnetMatthieu
-import yaml 
 import torch
 import numpy as np
 from tqdm import tqdm
