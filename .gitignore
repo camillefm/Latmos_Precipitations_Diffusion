@@ -57,6 +57,10 @@ slurm-*.err
 
 # PyTorch / DL checkpoints
 *.ckpt
-checkpoints/
 *.pth
 *.ptcase_study/data/
+
+#nc files
+*.nc
+*.npy
+*.bak

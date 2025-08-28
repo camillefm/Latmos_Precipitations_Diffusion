@@ -3,15 +3,6 @@ import sys
 import os
 import torch
 
-# Path to project root
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-core_dir = os.path.join(project_root, "core")
-src_dir = os.path.join(core_dir, "src")
-
-# Ensure paths are in sys.path
-for p in [project_root, core_dir, src_dir]:
-    if p not in sys.path:
-        sys.path.insert(0, p)
 
 from core.src.Metrics.metrics_function import distance_metrics, return_binary_rain, range_masks, update_dictionary,normalize_dict_by_row
 from core.src.Visualization.plot import standardize_tensor_shape

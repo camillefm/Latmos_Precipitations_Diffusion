@@ -1,26 +1,15 @@
 import yaml
 import torch
 import numpy as np
-#9 aout 2019
-import sys
-import os
-
-# Path to project root
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-core_dir = os.path.join(project_root, "core")
-src_dir = os.path.join(core_dir, "src")
-
-# Ensure paths are in sys.path
-for p in [project_root, core_dir, src_dir]:
-    if p not in sys.path:
-        sys.path.insert(0, p)
 
 from core.inference import load_image, load_model, inference, save_plot
-from case_study.scripts.data_viz import extraction, radar_quality, log_metrics, plot_confusion_matrix, plot_histogram_distribution, plot_range_metrics, plot_difference, plot_differences_only, plot_density_heatmap
-from case_study.scripts.generate_rain import generate_sampled_rain, generate_cnn_rain,generate_cnn_rain_tiled,generate_rain_mean
-from case_study.scripts.metrics import compute_metrics
+from data_viz import extraction, radar_quality, log_metrics, plot_confusion_matrix, plot_histogram_distribution, plot_range_metrics, plot_difference, plot_differences_only, plot_density_heatmap
+from generate_rain import generate_sampled_rain, generate_cnn_rain,generate_cnn_rain_tiled,generate_rain_mean
+from metrics import compute_metrics
 
-config_dir = "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/experiments/configs/e3_config.yaml"
+#case of 9 august 2019
+
+config_dir = "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/DL/experiments/best_experiment/configs/e3_config.yaml"
 result_dir = "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/case_study/results"
 data_dir = "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/case_study/data/sevmos_2019-08-09_18:10:00.nc"
 image_name = "e3_simple"

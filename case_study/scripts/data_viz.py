@@ -4,22 +4,16 @@ import sys
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
 import netCDF4
 import pandas as pd
 import torch
 from PIL import Image
 
-# projects_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-# rain_diffusion_dir = os.path.join(projects_dir, "RainDiffusion")
+import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm, SymLogNorm
 
-# if projects_dir not in sys.path:
-#     sys.path.insert(0, projects_dir)
 
-# if rain_diffusion_dir not in sys.path:
-#     sys.path.insert(0, rain_diffusion_dir)
-
-from src.Visualization.plot import plot_heatmap, plot_histogram
+from core.src.Visualization.plot import plot_heatmap, plot_histogram
 
 
 data_dir = "/net/nfs/ssd3/cfrancoismartin/Projects/ClimMatthieu/data"
@@ -291,8 +285,6 @@ def log_metrics(metrics_dict, png_path, cnn_metric=None):
     plt.close(fig)
     print(f"Metrics table saved to {png_path}")
 
-import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm, SymLogNorm
 
 def plot_difference(diffusion_image, target, png_path, cnn_image=None):
     """
