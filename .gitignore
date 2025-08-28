@@ -59,4 +59,4 @@ slurm-*.err
 *.ckpt
 checkpoints/
 *.pth
-*.pt
+*.ptcase_study/data/
