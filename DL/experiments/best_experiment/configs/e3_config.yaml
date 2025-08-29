@@ -4,29 +4,29 @@ experiment_name : "_more_channels"
 eval_name: "_best_rmse*(1-CSI)"
 
 #Directories
-data_directory : "/net/nfs/ssd3/cfrancoismartin/Projects/datasets/third_dataset/dataset"
-split_directory:
+data_directory : "/net/nfs/ssd3/cfrancoismartin/Projects/datasets/third_dataset/dataset" #where the dataset is stored
+split_directory:    #directory to the split csv files
   train_split : "/net/nfs/ssd3/cfrancoismartin/Projects/datasets/third_dataset/csv/train_split.csv"
   val_split :  "/net/nfs/ssd3/cfrancoismartin/Projects/datasets/third_dataset/csv/val_split.csv"
   test_split : "/net/nfs/ssd3/cfrancoismartin/Projects/datasets/third_dataset/csv/test_split.csv"
 
-checkpoint_directory : "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/DL/experiments/best_experiment/checkpoints/"
-result_directory : "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/DL/experiments/best_experiment/results/"
-norm_csv_directory : "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/DL/core/src/Dataset/csv/"
+checkpoint_directory : "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/DL/experiments/best_experiment/checkpoints/" #where the checkpoint is stored
+result_directory : "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/DL/experiments/best_experiment/results/" #directory to the results png files
+norm_csv_directory : "/net/nfs/ssd3/cfrancoismartin/Projects/Latmos_Precipitations_Diffusion/DL/core/src/Dataset/csv/" #directory to store the normalisation mean and std
 
 #Data
-list_channels: ['IR_087','IR_108','IR_120','WV_062','WV_073','IR_134','IR_097']
+list_channels: ['IR_087','IR_108','IR_120','WV_062','WV_073','IR_134','IR_097'] #list of channels for the condition
 
 # Data transformations
 transforms:
   #tb
-  normalize_tb: "mean_std" #between 'min_max' and 'mean_std' for tb
+  normalize_tb: "mean_std" #normalise mode for tbs (only mean_std is fully supported)
   normalize_tb_nb_of_sigmas: 3 #number of sigmas for the normalization
 
   rain_log_normalization: False #normalize the rain by log(1+x)
-  normalize_rain: "mean_std" #normalize the rain by mean_std
+  normalize_rain: "mean_std" #normalise mode for rain_rates (only mean_std is fully supported)
   normalize_rain_nb_of_sigmas: 1 #number of sigmas for the normalization
-  normalize_rain_exclude_zeros: True #exclude the pixels with rain value 0 for normalization
+  normalize_rain_exclude_zeros: True #exclude the pixels with rain value 0 for normalization (to compute mean and std)
 
   random_crop: True # crop to image size
 
@@ -39,13 +39,13 @@ transforms:
 
 # Model parameters
 model:
-  type: "Unet"   # Type of model to use
+  type: "Unet"   # Type of model to use (only Unet supported)
   n_channels: 1  # Number of input channels
-  dim_mults: [1, 2, 4]
+  dim_mults: [1, 2, 4] #multiplier of channel at each layer of the unet 
   image_size: 128 # Size of the input images
   init_dim: 64 #channels of the first layer then xdim_mults on every layer
-  out_dim: 1
-  resnet_block_groups: 2
+  out_dim: 1 #number of channels at the end (one for 1 channel image)
+  resnet_block_groups: 2 #number of resnet block on each layer
 
 
 # Training parameters
@@ -68,24 +68,24 @@ rain_value_threshold: 0.1 # >=
 
 # Optimization and scheduling 
 scheduler:
-  type: "step"
-  step_size: 250
-  gamma: 0.5
+  type: "step" #only step implemented
+  step_size: 250 #every x epoch
+  gamma: 0.5 #multiplier 
 
 
 
 diffusion:
   timesteps: 500 # Number of diffusion steps
-  cond_multiplier : 1 # multiplier for the conditionning
-  scheduler : "cosine" 
-  clip_betas_max : 0.8
+  cond_multiplier : 1 # multiplier for the conditionning : number of time it concatenates
+  scheduler : "cosine" #between linear, sigmoid, quadratic, cosine
+  clip_betas_max : 0.8 # for cosine scheduler to clip max vale ex : 0.999 or 0.8 in our case
   
   
 
 metrics :
   compute_rate : 10 #compute metrics every n epochs
-  nb_elements_for_metrics : 200
+  nb_elements_for_metrics : 200 # number of element on which we compute the metrics for training
 
 eval :
-  to_wandb : False
-  as_png : True
+  to_wandb : False #whether to log the training or eval on the website wandb 
+  as_png : True #wheter to save the results as png
