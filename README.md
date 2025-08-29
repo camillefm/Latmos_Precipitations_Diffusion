@@ -19,6 +19,8 @@ This project explores **diffusion models (DDPMs)** as a deep generative approach
 
 ---
 
+
+<img src="EDA/results/final_output_cropped.png" alt="Our Approach vs CNN Approach" width="400"/>
 ## 📂 Code Structure
 
 ```bash
