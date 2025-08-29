@@ -1,19 +1,27 @@
-Quantifying Rain Rates from geostationnary satellite Infrared radiometer using a Denoising Diffusion Probabilistic Model
+# 🌧️ Quantifying Rain Rates from Geostationary Satellites with Diffusion Models
 
+This repository implements and evaluates **Denoising Diffusion Probabilistic Models (DDPMs)** for precipitation prediction, with a focus on **deep learning, visualization, and applied case studies**.
+The organization is designed to clearly separate the **core model code**, **experiments**, and **exploratory analyses**.
 
-This repository implements and evaluates diffusion models for precipitation prediction, with a focus on deep learning, visualization, and applied case studies.
-The organization is designed to clearly separate the model’s core code, experiments, and exploratory analyses.
+---
 
-🌍 Project Overview
+## 🌍 Project Overview
 
-This project aims to reconstruct precipitation fields from geostationary satellite infrared (IR) observations using deep generative models.
-Unlike low-orbit satellites equipped with microwave sensors that can directly measure rainfall, geostationary satellites only provide IR measurements related to cloud-top temperatures. While this signal is indirect, it contains valuable information about cloud convection, vertical development, and organization, which are strongly correlated with precipitation events.
+Geostationary satellites (e.g., MSG) provide continuous **infrared (IR) radiometer measurements**, which indirectly reflect cloud-top temperatures.
+Unlike **low-orbit satellites** with microwave sensors that can directly measure rainfall, geostationary satellites require **inversion techniques** to estimate precipitation.
 
-To capture these complex, nonlinear relationships, we explore the use of deep learning models, with a particular focus on diffusion models (DDPMs). These state-of-the-art generative architectures have shown impressive performance in image modeling and hold promising potential for precipitation estimation and nowcasting.
+This project explores **diffusion models (DDPMs)** as a deep generative approach to reconstruct precipitation fields from IR data.
 
+* **Input:** IR brightness temperatures (`tb`) from multiple channels.
+* **Target:** Rainfall estimates from Météo-France radar mosaic (`r`).
+* **Challenge:** The IR–rainfall relationship is **indirect and highly nonlinear**, demanding advanced modeling.
+* **Solution:** Use **U-Net + diffusion models** to bridge the gap between frequent IR observations and sparse rainfall measurements.
 
-Code Structure:
+---
 
+## 📂 Code Structure
+
+```bash
 Latmos_Precipitations_Diffusion
 │
 ├── DL/                        
@@ -24,190 +32,139 @@ Latmos_Precipitations_Diffusion
 │       ├── main.py
 │       │
 │       └── src/               # Submodules of the core model
-│           ├── Dataset/       # Data loading & transformations
-│           │   ├── dataset.py
-│           │   ├── transform.py
-│           │   └── csv/       # Normalization stats (mean/std)
-│           │
-│           ├── Metrics/       # Evaluation & monitoring metrics
-│           │   ├── eval_metrics.py
-│           │   ├── metrics_function.py
-│           │   └── trainer_metrics.py
-│           │
+│           ├── Dataset/       # Data loading & preprocessing
+│           ├── Metrics/       # Evaluation & monitoring
 │           ├── Sampling/      # Diffusion process & sampling
-│           │   ├── diffusion_constants.py
-│           │   └── sample.py
-│           │
-│           ├── Unet/          # U-Net architecture
-│           │   ├── loss.py
-│           │   ├── unet.py
-│           │   └── Unet_backbone/
-│           │       ├── attention.py
-│           │       ├── block.py
-│           │       ├── sample.py
-│           │       └── time_embedding.py
-│           │
-│           └── Visualization/ # Visualization & plotting
-│               ├── eval_plot.py
-│               ├── plot.py
-│               └── trainer_plot.py
+│           ├── Unet/          # U-Net architecture & backbone
+│           └── Visualization/ # Plots & visualizations
 │
-├── build/                     
-│   └── build.sh               # Build / run automation script
-│
-├── experiments/               # Saved experiments
-│   ├── best_experiment/       # Reference / best experiment
-│   │   ├── checkpoint/
-│   │   ├── configs/           # This is where the config files are stored, use them for Template <-------
-│   │   └── results/
-│   │
-│   └── experiment/            # General experiments
-│       ├── checkpoints/
-│       ├── configs/
-│       ├── results/
-│       └── dump/
-│
-├── case_study/                # Specific case studies
-│   ├── data/
-│   ├── results/
-│   └── scripts/
-│       ├── core/              # core from DL
-│       ├── Matthieu/          # U-net by Matthieu Meignin
-│       │   └── unet_Matthieu.py
-│       ├── dataviz.py
-│       ├── generate_rain.py
-│       ├── main.py
-│       ├── metrics.py
-│       └── tiles.py
-│
-├── EDA/                       # Exploratory Data Analysis
-│   ├── results/
-│   └── scripts/
-│       ├── Matthieu/
-│       │   └── unet_Matthieu.py
-│       ├── data_analysis.py
-│       ├── data_treatment.py
-│       ├── fuse_dataset.py
-│       └── nan_distribution.py
-│
+├── build/                     # Build & run scripts
+├── experiments/               # Checkpoints, configs, results
+├── case_study/                # Applied case studies
+├── EDA/                       # Exploratory data analysis
 ├── README.md                  # Project presentation
-├── Report.pdf                 # Project report
-├── requirements.txt  
+├── Report.pdf                 # Detailed report
+└── requirements.txt           # Dependencies
+```
 
+---
 
+## 🧩 Model Architecture
 
-📡 Data Source
+### 🔹 General Structure
 
-The dataset is built from geostationary satellite (MSG metsat) IR radiometer measurements, which provide continuous, high-frequency coverage of large regions.
+The network is a **symmetric U-Net** with:
 
-Input: Infrared brightness temperatures K (multiple IR channels) referenced as tb in the code.
+* 🔽 **Encoder:** downsampling with strided convolutions + ResNet blocks + attention.
+* ⚡ **Bottleneck:** 2 ResNet blocks + 1 attention block for global context.
+* 🔼 **Decoder:** upsampling with skip connections + ResNet blocks + attention.
+* 🎯 **Final layer:** predicts noise to denoise at each diffusion step.
 
-Target: Rainfall estimates from meteofrance radar mosaic referenced as r in the code.
+Each stage uses:
 
-Challenge: The IR–rainfall relationship is indirect and highly variable, requiring advanced inversion techniques to extract meaningful rainfall patterns.
+* ⏳ **Temporal embeddings (sinusoidal)** to encode noise level.
+* 🎯 **Attention modules** for long-range dependencies.
 
-This combination enables the training of data-driven models that can learn to infer precipitation from satellite imagery, bridging the gap between frequent IR observations and sparse direct rainfall measurements.
+### 🔹 Model Size
 
-🧩 Model Architecture
-🔹 General Structure
+| Component                | Parameters            |
+| ------------------------ | --------------------- |
+| Initial convolution      | 640                   |
+| Temporal MLP embeddings  | 82.4k                 |
+| Encoder blocks           | 1.6M                  |
+| Bottleneck – ResNet (×2) | 1.3M each             |
+| Bottleneck – Attention   | 131k                  |
+| Decoder blocks           | 5.3M                  |
+| Final ResNet block       | 152k                  |
+| Output convolution       | 65                    |
+| **Total**                | **≈9.9M (\~39.6 MB)** |
 
-The model is based on a symmetric U-Net composed of three main parts:
-
-🔽 Encoder (downsampling): progressively reduces spatial resolution while increasing feature depth using convolutions.
-
-⚡ Bottleneck: captures global patterns through ResNet blocks and attention modules.
-
-🔼 Decoder (upsampling): reconstructs the target image, reinjecting details via skip connections.
-
-Each stage is enriched with:
-
-⏳ Temporal position embeddings (sinusoidal): inject noise-level information into the network.
-
-🎯 Attention modules: capture long-range spatial dependencies, crucial for reconstructing large rainfall structures.
-
-🔹 Network Workflow
-
-Encoder → strided convolutions + ResNet blocks + attention → compress input into abstract features.
-
-Bottleneck → 2 ResNet blocks + 1 attention block → capture complex global structures.
-
-Decoder → upsampling + ResNet blocks + attention → reconstruct output while leveraging skip connections for fine details.
-
-Final layer → predicts noise, which is subtracted at each diffusion step to generate the denoised image.
-
-🔹 Model Size
-
-The U-Net totals ≈ 9.9M parameters (~39.6 MB).
-
-Component	Parameters
-* Initial convolution	640
-* Temporal MLP embeddings	82.4k
-* Encoder blocks	1.6M
-* Bottleneck – ResNet (×2)	1.3M each
-* Bottleneck – Attention	131k
-* Decoder blocks	5.3M
-* Final ResNet block	152k
-* Output convolution	65
+---
 
 ## 📖 User Guide
 
-### 1. Installation
+### 1️⃣ Installation
 
-* Create a virtual environment (recommended).
-* Install all required Python packages:
-
+```bash
+# Recommended: create a virtual environment
 pip install -r requirements.txt
+```
 
-### 2. Prepare the Dataset
+---
 
-* Dataset must contain `.npy` files:
+### 2️⃣ Prepare the Dataset
 
-  * **`rain_rate.npy`** → target variable (precipitation rate).
-  * **Condition file(s)** → input data (can be named freely).
-  * **`rain_quality.npy`** → radar quality indicator (*optional*: not required for core functionality, but needed in some runs).
+Your dataset must include `.npy` files:
 
-* Create CSV files for dataset splits (train/val/test).
+* **`rain_rate.npy`** → precipitation target.
+* **Condition file(s)** → input data (free naming).
+* **`rain_quality.npy`** → radar quality flag (*optional*).
 
-  * Example scripts for generating splits are provided in the **`EDA/`** folder.
+👉 Create CSV files for **train/val/test splits** (see **`EDA/`** scripts).
+👉 Ensure **no NaN values** in the dataset.
 
-* Ensure the dataset contains **no NaN values**.
+---
 
-### 3. Configuration
+### 3️⃣ Configuration
 
-* Define a configuration file in **YAML format** containing all training parameters.
-* A **template config file** is available in the codebase for reference.
+* Use a `.yaml` config file with all training parameters.
+* Templates are available in **`experiments/best_experiment/configs/`**.
 
-### 4. Build Script
+---
 
-* Create a build script (`.sh`) to launch training or evaluation.
-* A **template build file** is included, adapted for the **hal.ipsl.fr** server.
+### 4️⃣ Build Script
 
-### 5. Running the Code
+* Use a `.sh` script to launch runs.
+* A template is included for **hal.ipsl.fr**.
 
-The entry point is **`main.py`**, which supports three modes:
+---
 
-* 🏋️ **Training**:
+### 5️⃣ Running the Code
 
-  python DL/core/main.py --exp <exp_id> --mode train --config_dir <path_to_config>
+Entry point: **`main.py`**
 
+#### 🏋️ Train
 
-* 📊 **Evaluation**:
+```bash
+python DL/core/main.py --exp 1 --mode train --config_dir configs/train.yaml
+```
 
-  python DL/core/main.py --exp <exp_id> --mode eval --config_dir <path_to_config>
+#### 📊 Evaluate
 
+```bash
+python DL/core/main.py --exp 1 --mode eval --config_dir configs/train.yaml
+```
 
-* 🔮 **Inference (on a single image)**:
+#### 🔮 Inference
 
-  python DL/core/main.py --exp <exp_id> --mode inference --config_dir <path_to_config> --image_dir <path_to_image>
+```bash
+python DL/core/main.py --exp 1 --mode inference --config_dir configs/train.yaml --image_dir path/to/image.npy
+```
 
-
+---
 
 ### 🔑 Arguments
 
-* `--exp` → experiment number (used to organize results in `experiments/`).
-* `--mode` → one of: `train`, `eval`, `inference`.
-* `--config_dir` → path to the YAML config file.
-* `--image_dir` → path to the input image (**only required for inference mode**).
-* `--debug_run` → add it for using the code on a small subset of the dataset
+| Argument       | Description                                         |
+| -------------- | --------------------------------------------------- |
+| `--exp`        | Experiment ID (saves results under `experiments/`). |
+| `--mode`       | `train`, `eval`, or `inference`.                    |
+| `--config_dir` | Path to YAML config file.                           |
+| `--image_dir`  | Path to input image (only for inference).           |
+| `--debug_run`  | Run on a small subset (debug mode).                 |
 
-👥 Contributors : Camille Francois Martin master student at Latmos, Meignin Matthieu Phd student at Latmos
+---
+
+## 📡 Data Source
+
+* **Input:** MSG satellite IR radiometer (brightness temperatures in Kelvin).
+* **Target:** Météo-France radar rainfall mosaic.
+* **Challenge:** IR-to-rainfall mapping is indirect & nonlinear.
+* **Goal:** Learn robust inversion with **diffusion models**.
+
+---
+
+## 👥 Contributors
+
+* **Camille François Martin** – Master student @ LATMOS
+* **Matthieu Meignin** – PhD student @ LATMOS
